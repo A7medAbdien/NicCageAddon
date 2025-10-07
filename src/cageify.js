@@ -3,12 +3,14 @@ const INTERVAL_KEY = "refresh-interval";
 const DEFAULT_INTERVAL = "1000";
 
 const SOURCES_KEY = "nic-sources";
+const ALLOWLIST_KEY = "nic-allowlist";
 
 const NICS = [
     'https://cdnb.artstation.com/p/assets/images/images/018/917/287/large/-006.jpg?1561240445',
 ]
 
 let runtimeSources = null;
+let runtimeAllowlist = [];
 
 function getSourcesOrDefault(item) {
     if (!item || !(SOURCES_KEY in item)) {
@@ -19,6 +21,30 @@ function getSourcesOrDefault(item) {
         return stored;
     }
     return NICS;
+}
+
+function getAllowlistOrDefault(item) {
+    if (!item || !(ALLOWLIST_KEY in item)) {
+        return [];
+    }
+    const list = item[ALLOWLIST_KEY];
+    if (Array.isArray(list)) {
+        return list;
+    }
+    return [];
+}
+
+function urlIsAllowed(url, allowlist) {
+    if (!allowlist || allowlist.length === 0) {
+        return true; // empty allowlist means run everywhere
+    }
+    for (let i = 0; i < allowlist.length; i++) {
+        const pattern = allowlist[i];
+        if (pattern && url.indexOf(pattern) !== -1) {
+            return true;
+        }
+    }
+    return false;
 }
 
 function getNic() {
@@ -65,11 +91,16 @@ function get_interval_or_default(item) {
 browser.storage.local.get().then(
     (item) => {
         runtimeSources = getSourcesOrDefault(item);
+        runtimeAllowlist = getAllowlistOrDefault(item);
         let interval = get_interval_or_default(item);
-        window.setInterval(replaceImages, interval);
+        if (urlIsAllowed(window.location.href, runtimeAllowlist)) {
+            window.setInterval(replaceImages, interval);
+        }
     },
     (_) => {
         runtimeSources = NICS;
-        window.setInterval(replaceImages, DEFAULT_INTERVAL);
+        if (urlIsAllowed(window.location.href, [])) {
+            window.setInterval(replaceImages, DEFAULT_INTERVAL);
+        }
     }
 );

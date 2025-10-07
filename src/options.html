@@ -18,6 +18,18 @@
     <br/>
     <button type="button" id="save-sources-button">Save Sources</button>
     <button type="button" id="reset-sources-button">Reset To Defaults</button>
+
+    <hr/>
+
+    <label>Allowlist (one URL or pattern per line)</label>
+    <div>
+      <small>Leave empty to run on all sites. Simple match: if the text appears in the page URL, it counts as a match (e.g., "example.com" or "https://news.ycombinator.com/").</small>
+    </div>
+    <br/>
+    <textarea id="allowlist-setting" rows="8" cols="80" placeholder="example.com\nhttps://news.ycombinator.com/"></textarea>
+    <br/>
+    <button type="button" id="save-allowlist-button">Save Allowlist</button>
+    <button type="button" id="reset-allowlist-button">Clear Allowlist</button>
     <script src="options.js"></script>
   </body>
 </html>

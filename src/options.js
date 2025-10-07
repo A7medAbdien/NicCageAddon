@@ -19,6 +19,8 @@ const DEFAULT_SOURCES = [
     "https://upload.wikimedia.org/wikipedia/commons/c/c0/Nicolas_Cage_Deauville_2013.jpg"
 ];
 
+const ALLOWLIST_KEY = "nic-allowlist";
+
 function save_interval() {
     let interval_setting = document.getElementById("interval-setting");
     let interval = interval_setting.value;
@@ -92,6 +94,39 @@ function reset_sources() {
     document.getElementById("sources-setting").value = DEFAULT_SOURCES.join("\n");
 }
 
+function get_allowlist_or_default(item) {
+    if (!item || !(ALLOWLIST_KEY in item)) {
+        browser.storage.local.set({
+            [ALLOWLIST_KEY]: []
+        });
+        return [];
+    }
+    const list = item[ALLOWLIST_KEY];
+    if (Array.isArray(list)) {
+        return list;
+    }
+    return [];
+}
+
+function save_allowlist() {
+    const textarea = document.getElementById("allowlist-setting");
+    const lines = textarea.value
+        .split("\n")
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+    browser.storage.local.set({
+        [ALLOWLIST_KEY]: lines
+    });
+}
+
+function reset_allowlist() {
+    browser.storage.local.set({
+        [ALLOWLIST_KEY]: []
+    });
+    const textarea = document.getElementById("allowlist-setting");
+    textarea.value = "";
+}
+
 // hook save button
 document.getElementById("save-button").addEventListener("click", save_interval);
 const saveSourcesBtn = document.getElementById("save-sources-button");
@@ -101,6 +136,14 @@ if (saveSourcesBtn) {
 const resetSourcesBtn = document.getElementById("reset-sources-button");
 if (resetSourcesBtn) {
     resetSourcesBtn.addEventListener("click", reset_sources);
+}
+const saveAllowBtn = document.getElementById("save-allowlist-button");
+if (saveAllowBtn) {
+    saveAllowBtn.addEventListener("click", save_allowlist);
+}
+const resetAllowBtn = document.getElementById("reset-allowlist-button");
+if (resetAllowBtn) {
+    resetAllowBtn.addEventListener("click", reset_allowlist);
 }
 
 // setup defaults
@@ -113,12 +156,21 @@ browser.storage.local.get().then(
         if (textarea) {
             textarea.value = sources.join("\n");
         }
+        const allowlist = get_allowlist_or_default(item);
+        const allowArea = document.getElementById("allowlist-setting");
+        if (allowArea) {
+            allowArea.value = allowlist.join("\n");
+        }
     },
     (_) => {
         document.getElementById("interval-setting").value = DEFAULT_INTERVAL;
         const textarea = document.getElementById("sources-setting");
         if (textarea) {
             textarea.value = DEFAULT_SOURCES.join("\n");
+        }
+        const allowArea = document.getElementById("allowlist-setting");
+        if (allowArea) {
+            allowArea.value = "";
         }
     }
 );
