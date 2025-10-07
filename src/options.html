@@ -9,6 +9,15 @@
     <label>Cage Refresh (milliseconds)</label>
     <input type="number" id="interval-setting" min=500 max=5000 title="How many milliseconds to wait between each image replace. Min 500, Max 5000"/>
     <button type="submit" type="button" id="save-button">Save</button>
+
+    <hr/>
+
+    <label>Image sources (one URL per line)</label>
+    <br/>
+    <textarea id="sources-setting" rows="10" cols="80" placeholder="https://example.com/cage1.jpg\nhttps://example.com/cage2.png"></textarea>
+    <br/>
+    <button type="button" id="save-sources-button">Save Sources</button>
+    <button type="button" id="reset-sources-button">Reset To Defaults</button>
     <script src="options.js"></script>
   </body>
 </html>
